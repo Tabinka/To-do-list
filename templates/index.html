@@ -1,28 +1,28 @@
-{% extends 'bootstrap/base.html' %}
+{% include "header.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
-
-{% block title %}To-Do List{% endblock %}
 
 {% block content %}
 <div class="jumbotron text-center">
     <div class="container">
+
         {% if not logged_user %}
-        <div class="primary-btn" data-toggle="modal" data-target="#myModal">Register</div>
-        <div class="primary-btn" data-toggle="modal" data-target="#LoginModal">Login</div>
+                {% with messages = get_flashed_messages() %}
+                  {% if messages %}
+                    <div class="alert alert-info" role="alert">
+                    {% for message in messages %}
+                        <span>{{ message }}</span>
+                    {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
+            <div class="login-container">
+                <div class="modal-btn" data-toggle="modal" data-target="#RegisterModal">Register</div>
+                <div class="modal-btn" data-toggle="modal" data-target="#LoginModal">Login</div>
+            </div>
         {% endif %}
 
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class=flashes">
-            {% for message in messages %}
-                <span>{{ message }}</span>
-            {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
-
         <!-- Register Modal -->
-        <div id="myModal" class="modal fade" role="dialog">
+        <div id="RegisterModal" class="modal fade" role="dialog">
           <div class="modal-dialog">
 
             <!-- Modal content-->
@@ -65,22 +65,33 @@
           </div>
         </div>
 
-  <h1 class="display-4">My To-Do List</h1>
-        {% if logged_user %}
+  <h1 class="main-header">My To-Do List <i class="fas fa-check-double"></i></h1>
+{{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+    <div class="task-list">
+                {% if logged_user %}
             {% for task in db_tasks %}
                 <div class="task">
-                    <p>{{task.task_name}} {{task.date}} {{task.tag}}<a href="{{url_for('delete', task_id=task.id)}}">x</a></p>
+                    <a class="delete-task" href="{{url_for('delete', task_id=task.id)}}"><i class="fas fa-times"></i></a>
+                    <span class="name-task">{{task.task_name}}</span>
+                    <div class="bottom-task">
+                        <span class="tag-name"><i class="fas fa-tag"></i> {{task.tag}}</span>
+                        <span class="date-task"><i class="fas fa-calendar-alt"></i> {{task.date}}</span>
+                    </div>
                 </div>
             {% endfor %}
         {% else %}
             {% for key, value in local_tasks.items() %}
                 <div class="task">
-                    <p>{{value["name"]}} {{value["date"]}} {{value["tag"]}}<a href="{{url_for('delete', task_id=key)}}">x</a></p>
+                    <a class="delete-task" href="{{url_for('delete', task_id=key)}}"><i class="fas fa-times"></i></a>
+                    <span class="name-task">{{value["name"]}}</span>
+                    <div class="bottom-task">
+                        <span class="tag-name"><i class="fas fa-tag"></i> {{value["tag"]}}</span>
+                        <span class="date-task"><i class="fas fa-calendar-alt"></i> {{value["date"]}}</span>
+                    </div>
                 </div>
             {% endfor %}
         {% endif %}
-{{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+    </div>
 </div>
     </div>
-
 {% endblock %}

@@ -12,10 +12,12 @@ from wtforms import StringField, SubmitField, PasswordField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired
 from sqlalchemy.ext.declarative import declarative_base
+from flask_fontawesome import FontAwesome
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 Bootstrap(app)
+fa = FontAwesome(app)
 
 dictionary_tasks = {}
 x = 0
@@ -23,9 +25,9 @@ x = 0
 
 # WTF FORM
 class NewTask(FlaskForm):
-    task_name = StringField("Task name", validators=[DataRequired()])
+    task_name = StringField("Task name", validators=[DataRequired()], render_kw={"placeholder": "Task Name"})
     date_time = DateField("Date")
-    tag_name = StringField("Tag")
+    tag_name = StringField("Tag", render_kw={"placeholder": "Tag Name"})
     submit = SubmitField("Add task")
 
 
@@ -130,7 +132,7 @@ def home():
                 login_user(user)
                 return redirect(url_for('home'))
             else:
-                flash("Wrong password")
+                flash("Wrong password.")
         else:
             flash("User does not exist.")
     elif register_form.register.data and register_form.validate():
@@ -139,6 +141,7 @@ def home():
             password=generate_password_hash(password=request.form["password"], method='pbkdf2:sha256',
                                             salt_length=8)
         )
+        flash("User registered.")
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('home'))
